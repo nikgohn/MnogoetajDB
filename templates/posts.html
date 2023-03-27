@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Список
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+  <h1>Все дома в базе</h1>
+  {% if homelist|length >0 %}
+  {% for el in homelist %}
+  <div class="alert alert-info">
+      <h2>{{ el.adress }}</h2>
+      <p>{{ el.type }}</p>
+      <p><b>Дата: {{ el.date.date() }}</b></p>
+    <a href="/posts/{{ el.id }}" class="btn btn-warning">Детали</a>
+  </div>
+  {% endfor %}
+  {% else %}
+    <p>Данных пока нет</p>
+    {% endif %}
+  </div>
+{% endblock %}
