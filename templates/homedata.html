@@ -9,9 +9,11 @@
 
   <div class="alert alert-info">
       <h2>{{ home.adress }}</h2>
+      <p>{{ home.year }}</p>
       <p>{{ home.type }}</p>
-      <p>{{ home.description }}</p>
-      <p><b>Дата: {{ home.date.date() }}</b></p>
+      <p>{{ home.floor }}</p>
+      <p>{{ home.porch }}</p>
+      <p><b>Дата добавления: {{ home.date.date() }}</b></p>
       <a href="/posts/{{ home.id }}/edit" class="btn btn-success">✏️</a>
       <a href="/posts/{{ home.id }}/delete" class="btn btn-danger">🗑️</a>
   </div>

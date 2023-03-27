@@ -1,40 +1,51 @@
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+
+UPLOAD_FOLDER = '/static/img/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///HomeInfo.db'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
 
 
 class Home(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    adress = db.Column(db.String(100), nullable=False)
-    type = db.Column(db.String(300), nullable=False)
-    description = db.Column(db.Text, nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    adress = db.Column(db.String(300), nullable=False)
+    type = db.Column(db.String(100), nullable=False)
+    floor = db.Column(db.Integer, nullable=False)
+    porch = db.Column(db.Integer, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
+    image = db.Column(db.LargeBinary, nullable=True)
 
     def __repr__(self):
         return '<Home %r>' % self.id
 
 
-@app.route('/')
-def index():
-    return render_template("index.html")
+#@app.route('/')
+#def index():
+#    return render_template("index.html")
 
 
 @app.route('/AddHome', methods=['POST', 'GET'])
 def addhome():
     if request.method == "POST":
+        year = request.form['year']
         adress = request.form['adress']
         type = request.form['type']
-        description = request.form['description']
+        floor = request.form['floor']
+        porch = request.form['porch']
 
-        home = Home(adress=adress, type=type, description=description)
+        home = Home(year=year, adress=adress, type=type, floor=floor, porch=porch)
 
         try:
             db.session.add(home)
             db.session.commit()
             return redirect('/posts')
+
         except:
             return "При добавлении возникла ошибка"
     else:
@@ -47,6 +58,7 @@ def about():
 
 
 @app.route('/posts')
+@app.route('/')
 def posts():
     homelist = Home.query.order_by(Home.date.desc()).all()
     return render_template("posts.html", homelist=homelist)
@@ -74,9 +86,12 @@ def posts_delete(id):
 def posts_edit(id):
     home = Home.query.get(id)
     if request.method == "POST":
+
+        home.year = request.form['year']
         home.adress = request.form['adress']
         home.type = request.form['type']
-        home.description = request.form['description']
+        home.floor = request.form['floor']
+        home.porch = request.form['porch']
 
         try:
 
