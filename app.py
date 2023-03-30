@@ -1,9 +1,10 @@
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import os
 
 UPLOAD_FOLDER = '/static/img/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///HomeInfo.db'
@@ -18,8 +19,9 @@ class Home(db.Model):
     type = db.Column(db.String(100), nullable=False)
     floor = db.Column(db.Integer, nullable=False)
     porch = db.Column(db.Integer, nullable=False)
+    filename = db.Column(db.String(300))
+    image = db.Column(db.LargeBinary)
     date = db.Column(db.DateTime, default=datetime.utcnow)
-    image = db.Column(db.LargeBinary, nullable=True)
 
     def __repr__(self):
         return '<Home %r>' % self.id
@@ -38,8 +40,9 @@ def addhome():
         type = request.form['type']
         floor = request.form['floor']
         porch = request.form['porch']
+        file = request.files['file']
 
-        home = Home(year=year, adress=adress, type=type, floor=floor, porch=porch)
+        home = Home(year=year, adress=adress, type=type, floor=floor, porch=porch, filename=file.filename, image=file.read())
 
         try:
             db.session.add(home)
@@ -48,6 +51,7 @@ def addhome():
 
         except:
             return "При добавлении возникла ошибка"
+
     else:
         return render_template("AddHome.html")
 
