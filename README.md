@@ -9,10 +9,13 @@
 - Python
 - Flask
 - SQLAlchemy
-- SQLite
 
 ### Запуск
-
+Установить необходимые библиотеки
+```bash
+pip install -r requirements.txt
+```
+Запуск
 ```bash
 python app.py
 ```
