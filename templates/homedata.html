@@ -8,10 +8,15 @@
 <div class="container mt-5">
 
   <div class="alert alert-info">
-      <h2>{{ home.adress }}</h2>
+      <h3>Адрес</h3>
+      <p>{{ home.adress }}</p>
+      <h4>Год постройки</h4>
       <p>{{ home.year }}</p>
+      <h4>Тип дома</h4>
       <p>{{ home.type }}</p>
+      <h4>Количество этажей</h4>
       <p>{{ home.floor }}</p>
+      <h4>Количество подъездов</h4>
       <p>{{ home.porch }}</p>
       <img src="data:image/png;base64, {{ image }}" width="1000" height="auto"/>
       <p><b>Дата добавления: {{ home.date.date() }}</b></p>
