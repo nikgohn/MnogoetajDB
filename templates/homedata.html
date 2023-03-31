@@ -18,7 +18,7 @@
       <p>{{ home.floor }}</p>
       <h4>Количество подъездов</h4>
       <p>{{ home.porch }}</p>
-      <img src="data:image/png;base64, {{ image }}" width="1000" height="auto"/>
+      <img src="data:image/png;base64, {{ image }}" class="img-fluid" alt="Responsive image"/>
       <p><b>Дата добавления: {{ home.date.date() }}</b></p>
       <a href="/posts/{{ home.id }}/edit" class="btn btn-success">✏️</a>
       <a href="/posts/{{ home.id }}/delete" class="btn btn-danger">🗑️</a>
