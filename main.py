@@ -1,10 +1,11 @@
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from base64 import b64encode
 import os
 
 UPLOAD_FOLDER = '/static/img/uploads'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = { 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///HomeInfo.db'
@@ -71,7 +72,9 @@ def posts():
 @app.route('/posts/<int:id>')
 def posts_data(id):
     home = Home.query.get(id)
-    return render_template("homedata.html", home=home)
+    bimg = b64encode(home.image)
+    image = bimg.decode('utf-8')
+    return render_template("homedata.html", home=home, image=image)
 
 
 @app.route('/posts/<int:id>/delete')
