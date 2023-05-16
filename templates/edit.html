@@ -15,11 +15,7 @@
       <p><strong>Улица:</strong> {{ address.street }}</p>
       <p><strong>Номер дома:</strong> {{ address.homenum }}</p>
       <h4>Год постройки</h4>
-    <select name="year" id="year" class="form-control">
-      {% for year in range(current_year, current_year - 100, -1) %}
-      <option value="{{ year }}">{{ year }}</option>
-    {% endfor %}
-    </select>
+      <p>{{ home.year }}</p>
       <h4>Тип дома</h4>
       <p>{{ home.type }}</p>
       <h4>Количество этажей</h4>
@@ -48,7 +44,11 @@
           <input type="text" name="homenum" id="homenum" class="form-control" value="{{ address.homenum }}">
         </div>
         <h4>Год постройки</h4>
-        <input type="text" name="year" id="year" class="form-control" value="{{ home.year }}"><br>
+    <select name="year" id="year" class="form-control">
+      {% for year in range(current_year, current_year - 100, -1) %}
+      <option value="{{ year }}">{{ year }}</option>
+    {% endfor %}
+    </select>
         <h4>Тип дома</h4>
         <input type="text" name="type" id="type" class="form-control" value="{{ home.type }}"><br>
         <h4>Количество этажей</h4>
