@@ -1,3 +1,5 @@
 .fleet/settings.json
 .idea/vcs.xml
 .vscode/settings.json
+/migrations/
+/.backup/

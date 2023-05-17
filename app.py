@@ -19,6 +19,7 @@ class Home(db.Model):
     year = db.Column(db.Integer, nullable=False)
     type = db.Column(db.String(100), nullable=False)
     floor = db.Column(db.Integer, nullable=False)
+    floors = db.relationship('Floor', backref='home')
     porch = db.Column(db.Integer, nullable=False)
     filename = db.Column(db.String(300))
     image = db.Column(db.LargeBinary)
@@ -34,18 +35,23 @@ class Adress(db.Model):
     street = db.Column(db.String(300), nullable=False)
     homenum = db.Column(db.Integer, nullable=True)
 
+
+class Floor(db.Model):
+    __tablename__ = "Floor_data"
+    id = db.Column(db.Integer, primary_key=True)
+    home_id = db.Column(db.Integer, db.ForeignKey('Home_data.id'))
+    number = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.String(300), nullable=True)
+    filename = db.Column(db.String(300))
+    image = db.Column(db.LargeBinary)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
+
     def __repr__(self):
         return '<Home %r>' % self.id
 
 
-# @app.route('/')
-# def index():
-#    return render_template("index.html")
-
-
 @app.route('/AddHome', methods=['POST', 'GET'])
 def addhome():
-
     current_year = datetime.now().year
 
     if request.method == "POST":
@@ -58,6 +64,9 @@ def addhome():
         district = request.form['district']
         street = request.form['street']
         homenum = request.form['homenum']
+        floors = request.form.getlist('floor_number')
+        descriptions = request.form.getlist('floor_description')
+        floor_files = request.files.getlist('floor_file')
 
         home = Home(year=year, type=type, floor=floor, porch=porch, filename=file.filename, image=file.read())
         adress_data = Adress(city=city, district=district, street=street, homenum=homenum, home=home)
@@ -66,6 +75,16 @@ def addhome():
             db.session.add(home)
             db.session.add(adress_data)
             db.session.commit()
+
+            for i in range(len(floors)):
+                floor_number = floors[i]
+                floor_description = descriptions[i]
+                floor_file = floor_files[i]
+
+                floor = Floor(home_id=home.id, number=floor_number, description=floor_description, filename=floor_file.filename, image=floor_file.read())
+                db.session.add(floor)
+                db.session.commit()
+
             return redirect('/posts')
 
         except:

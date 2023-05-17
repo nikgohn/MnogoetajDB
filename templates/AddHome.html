@@ -18,7 +18,7 @@
     <select name="year" id="year" class="form-control">
       {% for year in range(current_year, current_year - 100, -1) %}
       <option value="{{ year }}">{{ year }}</option>
-    {% endfor %}
+      {% endfor %}
     </select>
 
     <h4>Тип дома</h4>
@@ -33,7 +33,96 @@
     <h4>Фото</h4>
     <input type="file" name="file" id="file" class="form-control" required><br>
 
+    <h4>Этажи</h4>
+    <div id="floor-fields">
+      <div class="form-group floor-field">
+        <div class="input-group">
+          <input type="text" name="floor_number[]" class="form-control" placeholder="Номер этажа">
+          <input type="text" name="floor_description[]" class="form-control" placeholder="Описание этажа">
+          <input type="file" name="floor_image[]" class="form-control" required>
+          <div class="input-group-append">
+            <button type="button" class="btn btn-danger delete-floor">Удалить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button type="button" id="add-floor" class="btn btn-secondary">Добавить этаж</button>
+
     <input type="submit" class="btn btn-success" value="Отправить">
   </form>
 </div>
+
+<style>
+  .floor-field {
+    margin-bottom: 10px;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("add-floor").addEventListener("click", function() {
+      var floorFields = document.getElementById("floor-fields");
+
+      var floorField = document.createElement("div");
+      floorField.classList.add("form-group", "floor-field");
+
+      var inputGroup = document.createElement("div");
+      inputGroup.classList.add("input-group");
+
+      var floorNumberInput = document.createElement("input");
+      floorNumberInput.setAttribute("type", "text");
+      floorNumberInput.setAttribute("name", "floor_number[]");
+      floorNumberInput.classList.add("form-control");
+      floorNumberInput.placeholder = "Номер этажа";
+
+      var floorDescriptionInput = document.createElement("input");
+      floorDescriptionInput.setAttribute("type", "text");
+      floorDescriptionInput.setAttribute("name", "floor_description[]");
+      floorDescriptionInput.classList.add("form-control");
+      floorDescriptionInput.placeholder = "Описание этажа";
+
+      var floorImageInput = document.createElement("input");
+      floorImageInput.setAttribute("type", "file");
+      floorImageInput.setAttribute("name", "floor_image[]");
+      floorImageInput.classList.add("form-control");
+      floorImageInput.required = true;
+
+      var deleteButton = document.createElement("button");
+      deleteButton.setAttribute("type", "button");
+      deleteButton.classList.add("btn", "btn-danger", "delete-floor");
+      deleteButton.textContent = "Удалить";
+
+      inputGroup.appendChild(floorNumberInput);
+      inputGroup.appendChild(floorDescriptionInput);
+      inputGroup.appendChild(floorImageInput);
+      inputGroup.appendChild(deleteButton);
+
+      floorField.appendChild(inputGroup);
+
+      floorFields.appendChild(floorField);
+
+      var floorFieldsCount = floorFields.getElementsByClassName("floor-field").length;
+      var floorNumberInputs = floorFields.getElementsByClassName("form-control")[0];
+
+      for (var i = 0; i < floorFieldsCount; i++) {
+        floorNumberInputs[i].setAttribute("value", i + 1);
+      }
+    });
+
+    document.addEventListener("click", function(event) {
+      if (event.target && event.target.classList.contains("delete-floor")) {
+        event.target.closest(".floor-field").remove();
+
+        // Update floor number for remaining floor fields
+        var floorFields = document.getElementById("floor-fields");
+        var floorFieldsCount = floorFields.getElementsByClassName("floor-field").length;
+        var floorNumberInputs = floorFields.getElementsByClassName("form-control")[0];
+
+        for (var i = 0; i < floorFieldsCount; i++) {
+          floorNumberInputs[i].setAttribute("value", i + 1);
+        }
+      }
+    });
+  });
+</script>
 {% endblock %}
