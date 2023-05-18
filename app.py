@@ -114,8 +114,13 @@ def posts_data(id):
     home = Home.query.get(id)
     bimg = b64encode(home.image)
     image = bimg.decode('utf-8')
-    address = Adress.query.filter_by(id=id).first()
-    return render_template("homedata.html", home=home, address=address, image=image)
+    address = Adress.query.filter_by(home_id=id).first()
+    floors = Floor.query.filter_by(home_id=id).all()
+
+    for floor in floors:
+        floor.b64image = b64encode(floor.image).decode('utf-8')
+
+    return render_template("homedata.html", home=home, address=address, image=image, floors=floors)
 
 
 @app.route('/posts/<int:id>/delete')
@@ -123,10 +128,16 @@ def posts_delete(id):
     home = Home.query.get_or_404(id)
 
     try:
-        adress_data = Adress.query.filter_by(id=id).first()
-        db.session.delete(adress_data)
+        address = Adress.query.filter_by(home_id=id).first()
+        floors = Floor.query.filter_by(home_id=id).all()
+
+        for floor in floors:
+            db.session.delete(floor)
+
+        db.session.delete(address)
         db.session.delete(home)
         db.session.commit()
+
         return redirect('/posts')
     except:
         return 'При удалении произошла ошибка'

@@ -6,23 +6,37 @@
 
 {% block body %}
 <div class="container mt-5">
-
-  <div class="alert alert-info">
-      <h3>Адрес</h3>
-      <p>{{ address.city }}, {{ address.district }}, {{ address.street }}, {{ address.homenum }}</p>
-      <h4>Год постройки</h4>
-      <p>{{ home.year }}</p>
-      <h4>Тип дома</h4>
-      <p>{{ home.type }}</p>
-      <h4>Количество этажей</h4>
-      <p>{{ home.floor }}</p>
-      <h4>Количество подъездов</h4>
-      <p>{{ home.porch }}</p>
-      <img src="data:image/png;base64, {{ image }}" class="img-fluid" alt="Responsive image"/>
-      <p><b>Дата добавления: {{ home.date.date() }}</b></p>
-      <a href="/posts/{{ home.id }}/edit" class="btn btn-success">✏️</a>
-      <a href="/posts/{{ home.id }}/delete" class="btn btn-danger">🗑️</a>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="alert alert-info">
+        <h3>Адрес</h3>
+        <p>{{ address.city }}, {{ address.district }}, {{ address.street }}, {{ address.homenum }}</p>
+        <h4>Год постройки</h4>
+        <p>{{ home.year }}</p>
+        <h4>Тип дома</h4>
+        <p>{{ home.type }}</p>
+        <h4>Количество этажей</h4>
+        <p>{{ home.floor }}</p>
+        <h4>Количество подъездов</h4>
+        <p>{{ home.porch }}</p>
+        <img src="data:image/png;base64, {{ image }}" class="img-fluid" alt="Responsive image"/>
+        <p><b>Дата добавления: {{ home.date.date() }}</b></p>
+        <a href="/posts/{{ home.id }}/edit" class="btn btn-success">✏️</a>
+        <a href="/posts/{{ home.id }}/delete" class="btn btn-danger">🗑️</a>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <h3>Этажи</h3>
+      {% for floor in floors %}
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Этаж {{ floor.number }}</h5>
+            <p class="card-text">{{ floor.description }}</p>
+            <img src="data:image/png;base64, {{ floor.b64image }}" class="img-fluid" alt="Floor Image"/>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
   </div>
-
 </div>
 {% endblock %}
