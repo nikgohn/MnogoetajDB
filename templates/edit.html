@@ -22,7 +22,15 @@
       <p>{{ home.floor }}</p>
       <h4>Количество подъездов</h4>
       <p>{{ home.porch }}</p>
-      <img src="data:image/png;base64, {{ image }}" class="img-fluid" alt="Responsive image"/>
+      <img src="data:image/png;base64,{{ image }}" class="img-fluid" alt="Responsive image"/>
+      {% for floor in home.floors %}
+        <h4>Этаж {{ loop.index }}</h4>
+        <p><strong>Номер этажа:</strong> {{ floor.number }}</p>
+        <p><strong>Описание этажа:</strong> {{ floor.description }}</p>
+        {% if floor.b64image %}
+          <img src="data:image/png;base64,{{ floor.b64image }}" class="img-fluid" alt="Responsive image">
+        {% endif %}
+      {% endfor %}
     </div>
     <div class="col-md-6">
       <form method="post" enctype="multipart/form-data">
@@ -44,11 +52,11 @@
           <input type="text" name="homenum" id="homenum" class="form-control" value="{{ address.homenum }}">
         </div>
         <h4>Год постройки</h4>
-    <select name="year" id="year" class="form-control">
-      {% for year in range(current_year, current_year - 100, -1) %}
-      <option value="{{ year }}">{{ year }}</option>
-    {% endfor %}
-    </select>
+        <select name="year" id="year" class="form-control">
+          {% for year in range(current_year, current_year - 100, -1) %}
+            <option value="{{ year }}" {% if home.year == year %}selected{% endif %}>{{ year }}</option>
+          {% endfor %}
+        </select>
         <h4>Тип дома</h4>
         <input type="text" name="type" id="type" class="form-control" value="{{ home.type }}"><br>
         <h4>Количество этажей</h4>
@@ -57,11 +65,40 @@
         <input type="text" name="porch" id="porch" class="form-control" value="{{ home.porch }}"><br>
         <h4>Фото</h4>
         <input type="file" name="file" id="file" class="form-control"><br>
-        <input type="submit" class="btn btn-success" value="Изменить">
-</form>
-</div>
 
+        <!-- Floor data -->
+        {% for floor in home.floors %}
+          <h4>Этаж {{ loop.index }}</h4>
+          <input type="text" name="floor_number_{{ floor.id }}" class="form-control" value="{{ floor.number }}" placeholder="Номер этажа"><br>
+          <textarea name="floor_description_{{ floor.id }}" class="form-control" placeholder="Описание этажа">{{ floor.description }}</textarea><br>
+          <input type="file" name="floor_image_{{ floor.id }}" class="form-control"><br>
+        {% endfor %}
+
+        <!-- Add new floor fields -->
+        <h4>Добавить новый этаж</h4>
+        <div id="new-floor-fields">
+          <!-- JavaScript code will dynamically add fields here -->
+        </div>
+        <button type="button" class="btn btn-primary" onclick="addNewFloorField()">Добавить</button><br><br>
+
+        <input type="submit" class="btn btn-success" value="Изменить">
+      </form>
+    </div>
   </div>
 </div>
+
+<script>
+  function addNewFloorField() {
+    var newFloorField = `
+      <h4>Этаж</h4>
+      <input type="text" name="floor_number" class="form-control" placeholder="Номер этажа"><br>
+      <textarea name="floor_description" class="form-control" placeholder="Описание этажа"></textarea><br>
+      <input type="file" name="floor_image" class="form-control"><br>
+    `;
+    var newFloorFieldsContainer = document.getElementById('new-floor-fields');
+    var newFloorFields = document.createElement('div');
+    newFloorFields.innerHTML = newFloorField;
+    newFloorFieldsContainer.appendChild(newFloorFields);
+  }
+</script>
 {% endblock %}
-```

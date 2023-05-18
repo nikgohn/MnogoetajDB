@@ -49,7 +49,6 @@ class Floor(db.Model):
 
 with app.app_context():
     db.create_all()
-    print("generated")
 
 
 @app.route('/AddHome', methods=['POST', 'GET'])
@@ -146,7 +145,7 @@ def posts_delete(id):
 @app.route('/posts/<int:id>/edit', methods=['POST', 'GET'])
 def posts_edit(id):
     home = Home.query.get(id)
-    address = Adress.query.get(id)
+    address = Adress.query.filter_by(home_id=id).first()
     bimg = b64encode(home.image)
     image = bimg.decode('utf-8')
 
@@ -168,12 +167,45 @@ def posts_edit(id):
             home.filename = file.filename
             home.image = file.read()
 
+        # Update existing floors
+        for floor in home.floors:
+            floor_number = request.form.get(f'floor_number_{floor.id}')
+            floor_description = request.form.get(f'floor_description_{floor.id}')
+            floor_image = request.files.get(f'floor_image_{floor.id}')
+
+            if floor_number is not None:
+                floor.number = floor_number
+            if floor_description is not None:
+                floor.description = floor_description
+            if floor_image:
+                floor.filename = floor_image.filename
+                floor.image = floor_image.read()
+
+        # Add new floors
+        floor_numbers = request.form.getlist('floor_number')
+        floor_descriptions = request.form.getlist('floor_description')
+        floor_images = request.files.getlist('floor_image')
+
+        for i in range(len(floor_numbers)):
+            floor_number = floor_numbers[i]
+            floor_description = floor_descriptions[i]
+            floor_image = floor_images[i]
+
+            if floor_number and floor_description and floor_image:
+                floor = Floor(number=floor_number, description=floor_description, filename=floor_image.filename, image=floor_image.read())
+                floor.home_id = home.id
+                db.session.add(floor)
+
         try:
             db.session.commit()
             return redirect('/posts')
         except:
             return "При изменении возникла ошибка"
     else:
+        # Get existing floors' images
+        for floor in home.floors:
+            floor.b64image = b64encode(floor.image).decode('utf-8')
+
         return render_template("edit.html", home=home, address=address, current_year=current_year, image=image)
 
 
