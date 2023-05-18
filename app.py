@@ -4,12 +4,8 @@ from datetime import datetime
 from base64 import b64encode
 import os
 
-UPLOAD_FOLDER = '/static/img/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///HomeInfo.db'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
 
 
@@ -29,7 +25,8 @@ class Home(db.Model):
 
 class Adress(db.Model):
     __tablename__ = "Adress_data"
-    id = db.Column(db.Integer, db.ForeignKey('Home_data.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    home_id = db.Column(db.Integer, db.ForeignKey('Home_data.id'))
     city = db.Column(db.String(100), nullable=False)
     district = db.Column(db.String(100), nullable=True)
     street = db.Column(db.String(300), nullable=False)
@@ -47,7 +44,12 @@ class Floor(db.Model):
     date = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return '<Home %r>' % self.id
+        return '<Floor %r>' % self.id
+
+
+with app.app_context():
+    db.create_all()
+    print("generated")
 
 
 @app.route('/AddHome', methods=['POST', 'GET'])
@@ -64,9 +66,9 @@ def addhome():
         district = request.form['district']
         street = request.form['street']
         homenum = request.form['homenum']
-        floors = request.form.getlist('floor_number')
-        descriptions = request.form.getlist('floor_description')
-        floor_files = request.files.getlist('floor_file')
+        floor_numbers = request.form.getlist('floor_number')
+        floor_descriptions = request.form.getlist('floor_description')
+        floor_images = request.files.getlist('floor_image')
 
         home = Home(year=year, type=type, floor=floor, porch=porch, filename=file.filename, image=file.read())
         adress_data = Adress(city=city, district=district, street=street, homenum=homenum, home=home)
@@ -76,22 +78,23 @@ def addhome():
             db.session.add(adress_data)
             db.session.commit()
 
-            for i in range(len(floors)):
-                floor_number = floors[i]
-                floor_description = descriptions[i]
-                floor_file = floor_files[i]
+            for i in range(len(floor_numbers)):
+                floor_number = floor_numbers[i]
+                floor_description = floor_descriptions[i]
+                floor_image = floor_images[i]
 
-                floor = Floor(home_id=home.id, number=floor_number, description=floor_description, filename=floor_file.filename, image=floor_file.read())
+                floor = Floor(number=floor_number, description=floor_description, filename=floor_image.filename, image=floor_image.read())
+                floor.home_id = home.id  # Set the home_id for the floor object
                 db.session.add(floor)
-                db.session.commit()
 
+            db.session.commit()
             return redirect('/posts')
 
         except:
             return "При добавлении возникла ошибка"
 
     else:
-        return render_template("AddHome.html", current_year=current_year)
+        return render_template('AddHome.html', current_year=current_year)
 
 
 @app.route('/about')

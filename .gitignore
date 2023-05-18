@@ -3,3 +3,4 @@
 .vscode/settings.json
 /migrations/
 /.backup/
+/instance/HomeInfo.db

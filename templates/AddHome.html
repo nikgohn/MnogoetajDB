@@ -35,16 +35,6 @@
 
     <h4>Этажи</h4>
     <div id="floor-fields">
-      <div class="form-group floor-field">
-        <div class="input-group">
-          <input type="text" name="floor_number[]" class="form-control" placeholder="Номер этажа">
-          <input type="text" name="floor_description[]" class="form-control" placeholder="Описание этажа">
-          <input type="file" name="floor_image[]" class="form-control" required>
-          <div class="input-group-append">
-            <button type="button" class="btn btn-danger delete-floor">Удалить</button>
-          </div>
-        </div>
-      </div>
     </div>
     <button type="button" id="add-floor" class="btn btn-secondary">Добавить этаж</button>
 
@@ -59,70 +49,50 @@
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("add-floor").addEventListener("click", function() {
-      var floorFields = document.getElementById("floor-fields");
+  document.getElementById("floor").addEventListener("input", function() {
+    var floorCount = parseInt(this.value);
+    var floorFields = document.getElementById("floor-fields");
 
+    floorFields.innerHTML = ""; // Clear existing fields
+
+    for (var i = 0; i < floorCount; i++) {
       var floorField = document.createElement("div");
       floorField.classList.add("form-group", "floor-field");
 
       var inputGroup = document.createElement("div");
       inputGroup.classList.add("input-group");
 
+      var floorNumber = i + 1; // Calculate the floor number
+
       var floorNumberInput = document.createElement("input");
       floorNumberInput.setAttribute("type", "text");
-      floorNumberInput.setAttribute("name", "floor_number[]");
+      floorNumberInput.setAttribute("name", "floor_number");
       floorNumberInput.classList.add("form-control");
       floorNumberInput.placeholder = "Номер этажа";
+      floorNumberInput.value = floorNumber; // Set the floor number value
 
       var floorDescriptionInput = document.createElement("input");
       floorDescriptionInput.setAttribute("type", "text");
-      floorDescriptionInput.setAttribute("name", "floor_description[]");
+      floorDescriptionInput.setAttribute("name", "floor_description");
       floorDescriptionInput.classList.add("form-control");
       floorDescriptionInput.placeholder = "Описание этажа";
 
       var floorImageInput = document.createElement("input");
       floorImageInput.setAttribute("type", "file");
-      floorImageInput.setAttribute("name", "floor_image[]");
+      floorImageInput.setAttribute("name", "floor_image");
       floorImageInput.classList.add("form-control");
       floorImageInput.required = true;
-
-      var deleteButton = document.createElement("button");
-      deleteButton.setAttribute("type", "button");
-      deleteButton.classList.add("btn", "btn-danger", "delete-floor");
-      deleteButton.textContent = "Удалить";
 
       inputGroup.appendChild(floorNumberInput);
       inputGroup.appendChild(floorDescriptionInput);
       inputGroup.appendChild(floorImageInput);
-      inputGroup.appendChild(deleteButton);
 
       floorField.appendChild(inputGroup);
 
       floorFields.appendChild(floorField);
-
-      var floorFieldsCount = floorFields.getElementsByClassName("floor-field").length;
-      var floorNumberInputs = floorFields.getElementsByClassName("form-control")[0];
-
-      for (var i = 0; i < floorFieldsCount; i++) {
-        floorNumberInputs[i].setAttribute("value", i + 1);
-      }
-    });
-
-    document.addEventListener("click", function(event) {
-      if (event.target && event.target.classList.contains("delete-floor")) {
-        event.target.closest(".floor-field").remove();
-
-        // Update floor number for remaining floor fields
-        var floorFields = document.getElementById("floor-fields");
-        var floorFieldsCount = floorFields.getElementsByClassName("floor-field").length;
-        var floorNumberInputs = floorFields.getElementsByClassName("form-control")[0];
-
-        for (var i = 0; i < floorFieldsCount; i++) {
-          floorNumberInputs[i].setAttribute("value", i + 1);
-        }
-      }
-    });
+    }
   });
 </script>
+
+
 {% endblock %}
