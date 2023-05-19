@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}
+О нас
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>О нас</h1>
+
+    {% if editable %}
+        <form method="POST" action="/about">
+            <textarea name="content" class="form-control">{{ content.content }}</textarea>
+            <br>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+    {% else %}
+        <p>{{ content.content }}</p>
+    {% endif %}
+</div>
+{% endblock %}

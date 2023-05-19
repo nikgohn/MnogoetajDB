@@ -47,6 +47,12 @@ class Floor(db.Model):
         return '<Floor %r>' % self.id
 
 
+class AboutContent(db.Model):
+    __tablename__ = "about_content"
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text)
+
+
 with app.app_context():
     db.create_all()
 
@@ -96,15 +102,53 @@ def addhome():
         return render_template('AddHome.html', current_year=current_year)
 
 
-@app.route('/about')
+@app.route('/about', methods=['GET', 'POST'])
 def about():
-    return render_template("about.html")
+    content = AboutContent.query.first()
 
+    if request.method == 'POST':
+        new_content = request.form.get('content')
+
+        if content:
+            content.content = new_content
+        else:
+            content = AboutContent(content=new_content)
+            db.session.add(content)
+
+        db.session.commit()
+
+        return redirect('/about')
+
+    return render_template("about.html", content=content, editable=True)
+
+
+@app.route('/about/edit', methods=['GET', 'POST'])
+def edabout():
+    content = AboutContent.query.first()
+
+    if request.method == 'POST':
+        new_content = request.form.get('content')
+
+        if content:
+            content.content = new_content
+        else:
+            content = AboutContent(content=new_content)
+            db.session.add(content)
+
+        db.session.commit()
+
+        return redirect('/about')
+
+    return render_template("edabout.html", content=content, editable=True)
 
 @app.route('/posts')
 @app.route('/')
 def posts():
     homelist = Home.query.order_by(Home.date.desc()).all()
+    for home in homelist:
+        home.address = Adress.query.filter_by(home_id=home.id).first()
+        home.b64image = b64encode(home.image).decode('utf-8')
+
     return render_template("posts.html", homelist=homelist)
 
 

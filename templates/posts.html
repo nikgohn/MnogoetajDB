@@ -7,17 +7,27 @@
 {% block body %}
 <div class="container mt-5">
   <h1>Все дома в базе</h1>
-  {% if homelist|length >0 %}
-  {% for el in homelist %}
-  <div class="alert alert-info">
-      <h2>{{ el.adress }}</h2>
-      <p>{{ el.type }}</p>
-      <p><b>Дата: {{ el.date.date() }}</b></p>
-    <a href="/posts/{{ el.id }}" class="btn btn-warning">Детали</a>
-  </div>
-  {% endfor %}
+  {% if homelist|length > 0 %}
+    {% for el in homelist %}
+      <div class="alert alert-info">
+          <div class="row">
+                <div class="col-md-6">
+                    <h2>{{ el.address.city }}, {{ el.address.street }}, д.{{ el.address.homenum }}</h2>
+                    <p>Тип дома: {{ el.type }}</p>
+                    <p>Количество этажей: {{ el.floor }}</p>
+                    <p>Количество подъездов: {{ el.porch }}</p>
+                    <p>Год постройки: {{ el.year }}</p>
+                    <p><b>Дата: {{ el.date.date() }}</b></p>
+                </div>
+            <div class="col-md-6">
+                <img src="data:image/png;base64,{{ el.b64image }}" class="img-fluid">
+            </div>
+          </div>
+          <a href="/posts/{{ el.id }}" class="btn btn-warning">Детали</a>
+      </div>
+    {% endfor %}
   {% else %}
     <p>Данных пока нет</p>
-    {% endif %}
-  </div>
+  {% endif %}
+</div>
 {% endblock %}
