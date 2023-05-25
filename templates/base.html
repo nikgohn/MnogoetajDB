@@ -15,9 +15,26 @@
       </a>
 
       <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
-<!--        <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/">Главная</a>-->
-<!--        <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/about">Про нас</a>-->
-      </nav>
+<!--    <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/">Главная</a>-->
+<!--    <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/about">Про нас</a>-->
+
+    {% if current_user.is_authenticated %}
+        <span class="me-3 py-2 link-body-emphasis text-decoration-none">Привет, {{ current_user.username }}!</span>
+        <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/logout">Выйти</a>
+    {% else %}
+        <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/login">Войти</a>
+        <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/register">Регистрация</a>
+    {% endif %}
+</nav>
+
+
+      <form action="/search" method="POST" class="mx-3">
+        <div class="input-group">
+          <input type="text" class="form-control" name="search_query" placeholder="Поиск">
+          <button type="submit" class="btn btn-primary">Искать</button>
+        </div>
+      </form>
+
         <a class="btn btn-outline-primary " href="/about">О нас</a>
         <a class="btn btn-success mx-1" href="/AddHome">Добавить</a>
 <!--        <a class="btn btn-warning" href="/posts">Список</a>-->

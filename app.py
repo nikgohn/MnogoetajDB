@@ -3,10 +3,16 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from base64 import b64encode
 import os
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+import json
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///HomeInfo.db'
 db = SQLAlchemy(app)
+login_manager = LoginManager(app)
+with open('config.json') as config_file:
+    config = json.load(config_file)
+    app.config['SECRET_KEY'] = config['SECRET_KEY']
 
 
 class Home(db.Model):
@@ -53,11 +59,71 @@ class AboutContent(db.Model):
     content = db.Column(db.Text)
 
 
+class User(UserMixin, db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+
+
 with app.app_context():
     db.create_all()
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        # Check if the username is already taken
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            return 'Username already taken'
+
+        # Create a new user
+        new_user = User(username=username, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        return redirect('/login')
+
+    return render_template('register.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        # Find the user in the database
+        user = User.query.filter_by(username=username).first()
+
+        # Check if the user exists and the password is correct
+        if user and user.password == password:
+            login_user(user)  # Log in the user
+            return redirect('/')
+
+        return 'Invalid username or password'
+
+    return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()  # Log out the user
+    return redirect('/')
+
+
 @app.route('/AddHome', methods=['POST', 'GET'])
+@login_required
 def addhome():
     current_year = datetime.now().year
 
@@ -167,6 +233,7 @@ def posts_data(id):
 
 
 @app.route('/posts/<int:id>/delete')
+@login_required
 def posts_delete(id):
     home = Home.query.get_or_404(id)
 
@@ -187,6 +254,7 @@ def posts_delete(id):
 
 
 @app.route('/posts/<int:id>/edit', methods=['POST', 'GET'])
+@login_required
 def posts_edit(id):
     home = Home.query.get(id)
     address = Adress.query.filter_by(home_id=id).first()
@@ -251,6 +319,40 @@ def posts_edit(id):
             floor.b64image = b64encode(floor.image).decode('utf-8')
 
         return render_template("edit.html", home=home, address=address, current_year=current_year, image=image)
+
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        search_query = request.form.get('search_query')
+
+        # Perform the search in the three tables
+        homes = Home.query.filter(Home.type.ilike(f'%{search_query}%')).all()
+        addresses = Adress.query.join(Adress.home).filter(
+            Adress.city.ilike(f'%{search_query}%') |
+            Adress.district.ilike(f'%{search_query}%') |
+            Adress.street.ilike(f'%{search_query}%')
+        ).all()
+        floors = Floor.query.join(Floor.home).filter(Floor.description.ilike(f'%{search_query}%')).all()
+
+        for home in homes:
+            home.address = Adress.query.filter_by(home_id=home.id).first()
+            home.b64image = b64encode(home.image).decode('utf-8')
+
+        for address in addresses:
+            address.home = Home.query.filter_by(id=address.home_id).first()
+            if address.home:
+                address.home.b64image = b64encode(address.home.image).decode('utf-8')
+
+        for floor in floors:
+            floor.b64image = b64encode(floor.image).decode('utf-8')
+            floor.home = Home.query.filter_by(id=floor.home_id).first()
+            if floor.home:
+                floor.home.b64image = b64encode(floor.home.image).decode('utf-8')
+
+        return render_template("search.html", homes=homes, addresses=addresses, floors=floors, query=search_query)
+
+    return render_template("search.html")
 
 
 if __name__ == "__main__":

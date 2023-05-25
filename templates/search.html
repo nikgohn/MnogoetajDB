@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Поиск
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+  <h1>Результаты поиска</h1>
+
+  {% if homes %}
+    <h2>Дома</h2>
+    {% for home in homes %}
+      <div class="alert alert-info">
+        <div class="row">
+          <div class="col-md-6">
+            <h2>{{ home.address.city }}, {{ home.address.street }}, д.{{ home.address.homenum }}</h2>
+            <p>Тип дома: {{ home.type }}</p>
+            <p>Количество этажей: {{ home.floor }}</p>
+            <p>Количество подъездов: {{ home.porch }}</p>
+            <p>Год постройки: {{ home.year }}</p>
+            <p><b>Дата: {{ home.date.date() }}</b></p>
+          </div>
+          <div class="col-md-6">
+            {% if home.b64image %}
+              <img src="data:image/png;base64,{{ home.b64image }}" class="img-fluid">
+            {% endif %}
+          </div>
+        </div>
+        <a href="/posts/{{ home.id }}" class="btn btn-warning">Детали</a>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if addresses %}
+    <h2>Адреса</h2>
+    {% for address in addresses %}
+      <div class="alert alert-info">
+        <div class="row">
+          <div class="col-md-6">
+            <h2>{{ address.city }}, {{ address.street }}, д.{{ address.homenum }}</h2>
+            {% set home = address.home %}
+            <p>Тип дома: {{ home.type }}</p>
+            <p>Количество этажей: {{ home.floor }}</p>
+            <p>Количество подъездов: {{ home.porch }}</p>
+            <p>Год постройки: {{ home.year }}</p>
+            <p><b>Дата: {{ home.date.date() }}</b></p>
+          </div>
+          <div class="col-md-6">
+          {% if home.b64image %}
+            <img src="data:image/png;base64,{{ home.b64image }}" class="img-fluid">
+          {% endif %}
+            </div>
+        </div>
+        <a href="/posts/{{ home.id }}" class="btn btn-warning">Детали</a>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if floors %}
+    <h2>Этажи</h2>
+    {% for floor in floors %}
+      <div class="alert alert-info">
+        <h2>{{ floor.home.address.city }}, {{ floor.home.address.street }}, д.{{ floor.home.address.homenum }}</h2>
+        <p>Номер этажа: {{ floor.number }}</p>
+        <p>Описание: {{ floor.description }}</p>
+        {% if floor.b64image %}
+          <img src="data:image/png;base64,{{ floor.b64image }}" class="img-fluid">
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if not homes and not addresses and not floors %}
+    <p>Ничего не найдено</p>
+  {% endif %}
+</div>
+{% endblock %}
