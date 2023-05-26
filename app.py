@@ -84,7 +84,7 @@ def register():
         # Check if the username is already taken
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
-            return 'Username already taken'
+            return 'Такой пользователь уже существует'
 
         # Create a new user
         new_user = User(username=username, password=password)
@@ -110,7 +110,7 @@ def login():
             login_user(user)  # Log in the user
             return redirect('/')
 
-        return 'Invalid username or password'
+        return 'Неверные Имя пользователя и/или Пароль'
 
     return render_template('login.html')
 
